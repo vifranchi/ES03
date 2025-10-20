@@ -1,14 +1,9 @@
-let xMax= 400;
-let yMax= 600;
-
 let orbitAngle = 0; //rotazione lungo l'orbita
 let rotationAngle = 0; // variabile per la rotazione
-
-
-
+let orbitDirection = 1;
 
 function setup() {
-  createCanvas(xMax, yMax);
+  createCanvas(windowWidth, windowHeight);
   angleMode(RADIANS); // assicura l'uso dei radianti
 }
 
@@ -20,7 +15,7 @@ function draw() {
   
   //stelle NO RANDOM
   noStroke ();
-  for(let i=0; i < 60;i++){
+  for(let i=0; i < 150;i++){
     let starX = (i*37) % width + (i%3)*5;
     let starY = ((i*73)% height) + (i%7)
     let alpha = map(sin(frameCount * 0.2 + i), -1, 1, 100, 255);
@@ -40,24 +35,38 @@ function draw() {
 
 
   //STELLA
-  let orbitRadius = 250;
-  let centerX = width - 50;// centro orbita esterno a destra del canvas
-  let centerY = height / 2;    // centro orbita esterno a destra del canvas
+  let orbitRadius = 900; // raggio dell'orbita
 
-  let xStar = centerX + cos(orbitAngle) * orbitRadius;
-  let yStar = centerY + sin(orbitAngle) * orbitRadius;
+  let centerX = width + 10;// centro orbita esterno a destra del canvas
+  let centerY = height + 30; // centro orbita esterno a destra del canvas
+
+  // Calcolo posizione della stella lungo l’orbita inclinata
+  let xOrbit = cos(orbitAngle) * orbitRadius;
+  let yOrbit = sin(orbitAngle) * orbitRadius;
+
+  let orbitRotation = PI * 3 / 4; // inclinazione dell'orbita
 
   fill(255, 252, 96); 
   push();
-  translate(xStar, yStar);
-  let scaleFactor = map(sin(frameCount * 0.1), -1, 1, 0.9, 1);
+  translate(centerX, centerY);
+  rotate(orbitRotation);            
+  translate(xOrbit, yOrbit);  
+
+  let scaleFactor = map(sin(frameCount * 0.1), -1, 1, 0.9, 1.1);
   scale(scaleFactor);
   rotate(rotationAngle);
-  star(0, 0, 30, 70, 5);
+
+  star(0, 0, 50, 120, 5);
   pop();
   
-  orbitAngle += 0.01; // velocità dell'orbita
-  rotationAngle += 0.03; // aggiorna l'angolo ogni frame
+  let orbitSpeed = 0.01;
+orbitAngle += orbitSpeed * orbitDirection;
+rotationAngle += 0.03;
+
+// Limita l'angolo dell'orbita tra 0 e PI
+if (orbitAngle >= PI || orbitAngle <= 0) {
+  orbitDirection *= -1; // rimbalza avanti e indietro
+}
 }
  
 function star(x, y, radius1, radius2, npoints) {
@@ -75,6 +84,11 @@ function star(x, y, radius1, radius2, npoints) {
     sy = y + sin(a + halfAngle) * radius1; //rientro tra le punte
     vertex(sx, sy);
   }
+
   endShape(CLOSE);
+
+  function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
 
 }
